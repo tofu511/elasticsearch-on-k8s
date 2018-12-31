@@ -1,0 +1,1 @@
+variable "project_id" { default = "elasticseatch-on-k8s" }

@@ -1,0 +1,3 @@
+.idea
+terraform/gcp/.terraform
+terraform/gcp/terraform.*
