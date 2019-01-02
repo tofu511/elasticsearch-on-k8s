@@ -1,4 +1,4 @@
-variable "project_id" { default = "elasticseatch-on-k8s" }
+variable "project_id" { default = "elasticsearch-on-k8s-sample" }
 variable "billing_account" {}
 
 variable "cluster_name" { default = "elasticsearch"}
