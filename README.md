@@ -46,6 +46,11 @@ gcloud auth configure-docker
 ```
 cd elasticsearch
 docker build -t gcr.io/elasticsearch-on-k8s-sample/elasticsearch6:6.3 .
-docker tag [IMAGE ID] gcr.io/elasticsearch-on-k8s-sample/elasticsearch6:6.3 
 docker push gcr.io/elasticsearch-on-k8s-sample/elasticsearch6:6.3
+```
+
+#### create ES Master
+```
+kubectl apply -f es-master-svc.yaml --namespace=dev-elasticsearch
+kubectl apply -f es-master.yaml --namespace=dev-elasticsearch
 ```

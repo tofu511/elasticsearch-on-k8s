@@ -59,7 +59,7 @@ spec:
               resource: limits.cpu
         resources:
           requests:
-            cpu: 0.25
+            cpu: 0.10
           limits:
             cpu: 1
         ports:
@@ -68,7 +68,7 @@ spec:
         livenessProbe:
           tcpSocket:
             port: transport
-          initialDelaySeconds: 20
+          initialDelaySeconds: 30
           periodSeconds: 10
         volumeMounts:
         - name: storage
