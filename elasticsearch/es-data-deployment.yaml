@@ -1,22 +1,17 @@
-apiVersion: apps/v1
-kind: StatefulSet
+apiVersion: apps/v1beta1
+kind: Deployment
 metadata:
-  name: es-master
+  name: es-data
   labels:
     component: elasticsearch
-    role: master
+    role: data
 spec:
-  selector:
-    matchLabels:
-      component: elasticsearch
-      role: master
-  serviceName: elasticsearch-master
-  replicas: 3
+  replicas: 2
   template:
     metadata:
       labels:
         component: elasticsearch
-        role: master
+        role: data
     spec:
       initContainers:
       - name: init-sysctl
@@ -28,7 +23,7 @@ spec:
         securityContext:
           privileged: true
       containers:
-      - name: es-master
+      - name: es-data
         image: gcr.io/elasticsearch-on-k8s-sample/elasticsearch6:6.3
         env:
         - name: NAMESPACE
@@ -40,17 +35,13 @@ spec:
             fieldRef:
               fieldPath: metadata.name
         - name: CLUSTER_NAME
-          value: elasticsearch
-        - name: NUMBER_OF_MASTERS
-          value: "2"
+          value: myesdb
         - name: NODE_MASTER
-          value: "true"
+          value: "false"
         - name: NODE_INGEST
           value: "false"
-        - name: NODE_DATA
-          value: "false"
         - name: HTTP_ENABLE
-          value: "false"
+          value: "true"
         - name: ES_JAVA_OPTS
           value: -Xms256m -Xmx256m
         - name: PROCESSORS
@@ -59,26 +50,20 @@ spec:
               resource: limits.cpu
         resources:
           requests:
-            cpu: 0.10
+            cpu: 0.25
           limits:
             cpu: 1
         ports:
+        - containerPort: 9200
+          name: http
+          protocol: TCP
         - containerPort: 9300
           name: transport
-        livenessProbe:
-          tcpSocket:
-            port: transport
-          initialDelaySeconds: 30
-          periodSeconds: 10
+          protocol: TCP
         volumeMounts:
         - name: storage
-          mountPath: /data
-  volumeClaimTemplates:
-  - metadata:
-      name: storage
-    spec:
-      storageClassName: standard
-      accessModes: [ ReadWriteOnce ]
-      resources:
-        requests:
-          storage: 2Gi
+          mountPath: "/usr/share/elasticsearch/data"
+      volumes:
+      - emptyDir:
+          medium: ""
+        name: storage
