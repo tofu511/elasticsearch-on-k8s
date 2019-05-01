@@ -1,16 +1,22 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cerebro
+  labels:
+    service: cerebro
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      service: cerebro
   template:
     metadata:
       labels:
-        app: cerebro
+        service: cerebro
     spec:
       containers:
       - name: cerebro
         image: yannart/cerebro
         ports:
         - containerPort: 9000
+          name: http
