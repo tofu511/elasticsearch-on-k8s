@@ -1,17 +1,19 @@
-apiVersion: apps/v1beta1
-kind: Deployment
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
-  name: es-data
+  name: elasticsearch
   labels:
-    component: elasticsearch
-    role: data
+    service: elasticsearch
 spec:
-  replicas: 2
+  serviceName: es-cluster
+  replicas: 3
+  selector:
+    matchLabels:
+      service: elasticsearch
   template:
     metadata:
       labels:
-        component: elasticsearch
-        role: data
+        service: elasticsearch
     spec:
       initContainers:
       - name: init-sysctl
@@ -23,7 +25,7 @@ spec:
         securityContext:
           privileged: true
       containers:
-      - name: es-data
+      - name: elasticsearch
         image: gcr.io/elasticsearch-on-k8s-sample/elasticsearch6:6.3
         env:
         - name: NAMESPACE
@@ -35,35 +37,38 @@ spec:
             fieldRef:
               fieldPath: metadata.name
         - name: CLUSTER_NAME
-          value: myesdb
+          value: elasticsearch
+        - name: NUMBER_OF_MASTERS
+          value: "1"
         - name: NODE_MASTER
-          value: "false"
+          value: "true"
         - name: NODE_INGEST
           value: "false"
-        - name: HTTP_ENABLE
+        - name: NODE_DATA
           value: "true"
         - name: ES_JAVA_OPTS
           value: -Xms256m -Xmx256m
-        - name: PROCESSORS
-          valueFrom:
-            resourceFieldRef:
-              resource: limits.cpu
+        - name: DISCOVERY_SERVICE
+          value: es-cluster
         resources:
           requests:
-            cpu: 0.25
+            memory: 2Gi
           limits:
-            cpu: 1
+            memory: 2Gi
         ports:
+        - containerPort: 9300
+          name: tcp
         - containerPort: 9200
           name: http
-          protocol: TCP
-        - containerPort: 9300
-          name: transport
-          protocol: TCP
         volumeMounts:
         - name: storage
-          mountPath: "/usr/share/elasticsearch/data"
-      volumes:
-      - emptyDir:
-          medium: ""
-        name: storage
+          mountPath: /data
+  volumeClaimTemplates:
+  - metadata:
+      name: storage
+    spec:
+      storageClassName: elasticsearch-ssd
+      accessModes: [ ReadWriteOnce ]
+      resources:
+        requests:
+          storage: 10Gi
