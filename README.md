@@ -2,6 +2,7 @@
 
 ## Usage
 
+### GCP
 #### create `elasticsearch-on-k8s` Project & GKE cluster on GCP
 - If you don't have GCP project or terraform see [Before you begin](https://www.terraform.io/docs/providers/google/getting_started.html#before-you-begin)
 
@@ -17,7 +18,7 @@ terraform apply
 gcloud container clusters get-credentials [cluster name] --zone [your zone] --project [project id]
 
 # example
-# gcloud container clusters get-credentials elasticsearch --zone asia-northeast1-a --project elasticseatch-on-k8s 
+# gcloud container clusters get-credentials elasticsearch --zone asia-northeast1-a --project elasticsearch-on-k8s-sample
 ```
 
 - apply namespaces.yaml
@@ -28,12 +29,11 @@ kubectl apply -f namespaces.yaml
 
 # check namespaces
 kubectl get namespaces
-NAME                 STATUS    AGE
-default              Active    21h
-dev-elasticsearch    Active    7s  <- applied
-kube-public          Active    21h
-kube-system          Active    21h
-test-elasticsearch   Active    6s  <- applied
+NAME            STATUS    AGE
+default         Active    2m
+elasticsearch   Active    11s <- applied
+kube-public     Active    2m
+kube-system     Active    2m
 ```
 
 #### push docker image to Container Registry
@@ -51,6 +51,6 @@ docker push gcr.io/elasticsearch-on-k8s-sample/elasticsearch6:6.3
 
 #### create ES Master
 ```
-kubectl apply -f es-master-svc.yaml --namespace=dev-elasticsearch
-kubectl apply -f es-master.yaml --namespace=dev-elasticsearch
+kubectl apply -f es-master-svc.yaml --namespace=elasticsearch
+kubectl apply -f es-master.yaml --namespace=elasticsearch
 ```
